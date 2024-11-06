@@ -8,7 +8,7 @@ function App() {
   const [county, setCounty] = useState('');
   const [fileLink, setFileLink] = useState('');
   const [outputType, setOutputType] = useState<OutputType>('candidates');
-  const [linkType, setLinkType] = useState<LinkType>('html');
+  const [linkType, setLinkType] = useState<LinkType>('zip');
   const [result, setResult] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -32,7 +32,7 @@ function App() {
     >
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">Election Results Parser</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">Election Parser</h1>
           <p className="text-blue-200">Transform election data into embeddable HTML content</p>
         </div>
 
@@ -92,10 +92,10 @@ function App() {
                   onChange={(e) => setLinkType(e.target.value as LinkType)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition"
                 >
-                  <option value="html">HTML</option>
-                  <option value="pdf">PDF</option>
-                  <option value="xml">XML</option>
                   <option value="zip">ZIP</option>
+                  <option value="html" disabled className="line-through text-gray-400">HTML</option>
+                  <option value="pdf" disabled className="line-through text-gray-400">PDF</option>
+                  <option value="xml" disabled className="line-through text-gray-400">XML</option>
                 </select>
               </div>
             </div>
