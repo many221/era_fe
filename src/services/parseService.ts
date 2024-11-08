@@ -7,7 +7,7 @@ export const parseAndFormat = async (request: ParseRequest): Promise<string> => 
             county_name: request.countyName.toLowerCase(),
             link: request.link,
             parse_method: request.parseMethod,
-            result_type: request.resultType + 's'
+            result_type: `${request.resultType}s`
         };
         
         console.log('Request body being sent:', JSON.stringify(requestBody, null, 2));

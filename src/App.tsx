@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FileText, Share2, AlertCircle } from "lucide-react";
+import { FileText, Share2, AlertCircle, Check } from "lucide-react";
 import { parseAndFormat } from './services/parseService';
 import { ParseRequest } from './types/ParseRequest';
 
@@ -12,6 +12,7 @@ function App() {
   const [outputType, setOutputType] = useState<OutputType>("candidate");
   const [linkType, setLinkType] = useState<LinkType>("zip");
   const [result, setResult] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,6 +51,18 @@ function App() {
     } catch (error) {
       console.error('Error:', error);
       setResult(`Error processing results: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(result);
+      setCopied(true);
+      // Reset the copied state after 2 seconds
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      setResult('Error: Failed to copy to clipboard');
     }
   };
 
@@ -182,11 +195,22 @@ function App() {
                 Embeddable HTML
               </h2>
               <button
-                onClick={() => navigator.clipboard.writeText(result)}
-                className="inline-flex items-center space-x-2 text-blue-700 hover:text-blue-800"
+                onClick={handleCopyCode}
+                className={`inline-flex items-center space-x-2 ${
+                  copied ? 'text-green-600' : 'text-blue-700 hover:text-blue-800'
+                }`}
               >
-                <Share2 className="h-5 w-5" />
-                <span>Copy Code</span>
+                {copied ? (
+                  <>
+                    <Check className="h-5 w-5" />
+                    <span>Copied!</span>
+                  </>
+                ) : (
+                  <>
+                    <Share2 className="h-5 w-5" />
+                    <span>Copy Code</span>
+                  </>
+                )}
               </button>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
