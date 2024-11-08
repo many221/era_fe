@@ -26,3 +26,8 @@ dist-ssr
 # Docker
 .docker
 docker-compose*.yml
+
+# Environment variables
+.env
+.env.local
+.env.*.local

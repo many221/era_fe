@@ -1,3 +1,5 @@
-# era_fe
+# Election Parser Frontend
 
-[Edit in StackBlitz next generation editor ⚡️](https://stackblitz.com/~/github.com/many221/era_fe)
+## Environment Variables
+
+Create a `.env` file for development:
