@@ -24,7 +24,7 @@ export const parseAndFormat = async (request: ParseRequest): Promise<string> => 
         console.log('API URL:', baseURL);
         console.log('Request body being sent:', JSON.stringify(requestBody, null, 2));
         
-        const response = await api.post('/api/parse-and-format', requestBody);
+        const response = await api.post('/parse-and-format', requestBody);
 
         console.log('Successful response:', response.data);
         return response.data;
