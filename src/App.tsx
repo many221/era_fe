@@ -1,46 +1,84 @@
-import React, { useState } from 'react';
-import { FileText, Share2, AlertCircle } from 'lucide-react';
+import React, { useState } from "react";
+import { FileText, Share2, AlertCircle } from "lucide-react";
+import { parseAndFormat } from './services/parseService';
+import { ParseRequest } from './types/ParseRequest';
 
-type LinkType = 'zip' | 'html' | 'pdf' | 'xml';
-type OutputType = 'candidates' | 'measures';
+type LinkType = "zip" | "html" | "pdf" | "xml";
+type OutputType = "candidate" | "measure";
 
 function App() {
-  const [county, setCounty] = useState('');
-  const [fileLink, setFileLink] = useState('');
-  const [outputType, setOutputType] = useState<OutputType>('candidates');
-  const [linkType, setLinkType] = useState<LinkType>('zip');
-  const [result, setResult] = useState('');
+  const [county, setCounty] = useState("");
+  const [fileLink, setFileLink] = useState("");
+  const [outputType, setOutputType] = useState<OutputType>("candidate");
+  const [linkType, setLinkType] = useState<LinkType>("zip");
+  const [result, setResult] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setResult(`
-      <div class="election-results">
-        <h2>${county} County Results</h2>
-        <div class="results-data">
-          <p>Results processed from ${fileLink}</p>
-        </div>
-      </div>
-    `);
+    
+    // Validate required fields
+    if (!county.trim()) {
+      setResult('Error: County name is required');
+      return;
+    }
+
+    if (!fileLink.trim()) {
+      setResult('Error: File link is required');
+      return;
+    }
+
+    // Validate URL format
+    try {
+      new URL(fileLink); // This will throw if URL is invalid
+    } catch {
+      setResult('Error: Please enter a valid URL');
+      return;
+    }
+    
+    try {
+      const request: ParseRequest = {
+        countyName: county.trim(),
+        link: fileLink.trim(),
+        parseMethod: linkType,
+        resultType: outputType
+      };
+      
+      console.log('Sending request:', request); // Debug log
+      const htmlContent = await parseAndFormat(request);
+      setResult(htmlContent);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      setResult(`Error processing results: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen bg-cover bg-center bg-fixed"
       style={{
-        backgroundImage: 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("https://images.unsplash.com/photo-1449034446853-66c86144b0ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80")'
+        backgroundImage:
+          'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("https://images.unsplash.com/photo-1449034446853-66c86144b0ad?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80")',
       }}
     >
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">Election Parser</h1>
-          <p className="text-blue-200">Transform election data into embeddable HTML content</p>
+          <h1 className="text-4xl font-bold text-white mb-2">
+            Election Parser
+          </h1>
+          <p className="text-blue-200">
+            Transform election data into embeddable HTML content
+          </p>
         </div>
 
         <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-8 mb-8 border-t-4 border-red-700">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label htmlFor="county" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="county"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   County Name
                 </label>
                 <input
@@ -54,7 +92,10 @@ function App() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="fileLink" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="fileLink"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   File Link
                 </label>
                 <input
@@ -68,7 +109,10 @@ function App() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="outputType" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="outputType"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Output Type
                 </label>
                 <select
@@ -77,13 +121,16 @@ function App() {
                   onChange={(e) => setOutputType(e.target.value as OutputType)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition"
                 >
-                  <option value="candidates">Candidates</option>
-                  <option value="measures">Ballot Measures</option>
+                  <option value="candidate">Candidate</option>
+                  <option value="measure">Measure</option>
                 </select>
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="linkType" className="block text-sm font-medium text-gray-700">
+                <label
+                  htmlFor="linkType"
+                  className="block text-sm font-medium text-gray-700"
+                >
                   Link Type
                 </label>
                 <select
@@ -93,9 +140,27 @@ function App() {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-blue-700 transition"
                 >
                   <option value="zip">ZIP</option>
-                  <option value="html" disabled className="line-through text-gray-400">HTML</option>
-                  <option value="pdf" disabled className="line-through text-gray-400">PDF</option>
-                  <option value="xml" disabled className="line-through text-gray-400">XML</option>
+                  <option
+                    value="html"
+                    disabled
+                    className="line-through text-gray-400"
+                  >
+                    HTML
+                  </option>
+                  <option
+                    value="pdf"
+                    disabled
+                    className="line-through text-gray-400"
+                  >
+                    PDF
+                  </option>
+                  <option
+                    value="xml"
+                    disabled
+                    className="line-through text-gray-400"
+                  >
+                    XML
+                  </option>
                 </select>
               </div>
             </div>
@@ -113,7 +178,9 @@ function App() {
         {result && (
           <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-8 border-t-4 border-blue-700">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Embeddable HTML</h2>
+              <h2 className="text-xl font-semibold text-gray-900">
+                Embeddable HTML
+              </h2>
               <button
                 onClick={() => navigator.clipboard.writeText(result)}
                 className="inline-flex items-center space-x-2 text-blue-700 hover:text-blue-800"
@@ -123,7 +190,9 @@ function App() {
               </button>
             </div>
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-              <pre className="text-sm text-gray-700 whitespace-pre-wrap">{result}</pre>
+              <pre className="text-sm text-gray-700 whitespace-pre-wrap">
+                {result}
+              </pre>
             </div>
             <div className="mt-4 flex items-center text-sm text-gray-500">
               <AlertCircle className="h-4 w-4 mr-2" />
